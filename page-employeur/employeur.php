@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sql = "INSERT INTO emploie (titre,nom_du_société, description, adresse, domaine, salaire, contrat) VALUES ('$titre','$nom_du_société', '$description', '$adresse', '$domaine', '$salaire','$contrat')";
 
     if (mysqli_query($connection, $sql)) {
-        header("Location: ../homepage/home.html");
+        header("Location: ../page-employeur/employeurr.php");
         exit();
     } else {
         echo "Error registering user: " . mysqli_error($connection);

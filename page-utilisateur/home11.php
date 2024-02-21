@@ -1,6 +1,45 @@
 <?php
 include("connexion.php");
 session_start();
+
+// Vérifie si le formulaire de postulation a été soumis
+if (isset($_POST['submit'])) {
+  // Récupère les données du formulaire
+  $id_user = $_SESSION['id_user'];
+  $id_emploie = $_POST['id_emploie'];
+  $date = date('Y-m-d H:i:s');
+
+  // Vérifie que les variables ne sont pas vides
+  if (!empty($id_user) && !empty($id_emploie)) {
+    // Vérifie que la table `application` existe
+    $sql = "SHOW TABLES LIKE 'application'";
+    $result = mysqli_query($connection, $sql);
+    $table_exists = mysqli_num_rows($result) > 0;
+
+    if ($table_exists) {
+      // Vérifie que la requête SQL est correcte
+      $sql = "INSERT INTO application (id_user, id_emploie, date) VALUES ($id_user, $id_emploie, '$date')";
+      // Exécute la requête SQL
+      $result = mysqli_query($connection, $sql);
+
+      // Vérifie si la requête a réussi
+      if ($result) {
+        // Redirige l'utilisateur vers la même page pour rafraîchir
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+      } else {
+        // Affiche un message d'erreur
+        echo 'Erreur : ' . mysqli_error($connection);
+      }
+    } else {
+      // Affiche un message d'erreur si la table `application` n'existe pas
+      echo 'Erreur : la table `application` n\'existe pas.';
+    }
+  } else {
+    // Affiche un message d'erreur si les variables sont vides
+    echo 'Erreur : les variables sont vides.';
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,7 +66,7 @@ session_start();
       <li><a href="#">Contact</a></li>
     </ul>
     <?php
-    $idU=$_SESSION['id_user'];
+    $idU = $_SESSION['id_user'];
     $sql = "SELECT * FROM user WHERE id_user=$idU";
     $result1 = mysqli_query($connection, $sql);
 
@@ -35,12 +74,28 @@ session_start();
     while ($row = mysqli_fetch_assoc($result1)) {
 
       ?>
-    <article class="user">
-    
-        <h1 class="nom_user"><?php echo $row['nom_et_prenom']; ?></h1>
-        <p class="role_user"><?php echo $row['role']; ?></p>
-    </article>
+      <article class="user">
+
+        <h1 class="nom_user">
+          <?php echo $row['nom_et_prenom']; ?>
+        </h1>
+        <p class="role_user">
+          <?php echo $row['role']; ?>
+        </p>
+      </article>
     <?php } ?>
+    <form action="logout.php" method="POST">
+      <button class="Btn">
+
+        <div class="sign"><svg viewBox="0 0 512 512">
+            <path
+              d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z">
+            </path>
+          </svg></div>
+
+        <div class="text">Logout</div>
+      </button>
+    </form>
   </header>
   <section class="section1">
     <form action="" method="POST">
@@ -57,16 +112,17 @@ session_start();
   <section class="section2">
     <h3 class="h3">Les emploi disponibles à la une</h3>
   </section>
-  <section class="section3">
-
-    <?php
-    $sql = "SELECT * FROM emploie ORDER BY id_emploie DESC ";
-    $result = mysqli_query($connection, $sql);
 
 
-    while ($row = mysqli_fetch_assoc($result)) {
+  <?php
+  $sql = "SELECT * FROM emploie ORDER BY id_emploie DESC ";
+  $result = mysqli_query($connection, $sql);
 
-      ?>
+
+  while ($row = mysqli_fetch_assoc($result)) {
+
+    ?>
+    <section class="section3">
       <article class="article1">
         <div class="div2">
           <a href="#" class="link">
@@ -83,14 +139,61 @@ session_start();
           <p class="description">
             <?php echo $row['description']; ?>
           </p>
+          <form action="" method="POST">
+            <input type="hidden" name="id_emploie" value="<?php echo $row['id_emploie']; ?>">
+            <button type="submit" name="submit">Postuler</button>
+          </form>
+          <?php if (isset($_POST['submit'])) {
+            // Récupère les données du formulaire
+            $id_user = $_SESSION['id_user'];
+            $id_emploie = $_POST['id_emploie'];
+            $date = date('Y-m-d H:i:s');
+
+            // Vérifie que les variables ne sont pas vides
+            if (!empty($id_user) && !empty($id_emploie)) {
+              // Vérifie que la table `application` existe
+              $sql = "SHOW TABLES LIKE 'application'";
+              $result = mysqli_query($connection, $sql);
+              $table_exists = mysqli_num_rows($result) > 0;
+
+              if ($table_exists) {
+                // Vérifie que la requête SQL est correcte
+                $sql = "INSERT INTO application (id_user, id_emploie, date) VALUES ($id_user, $id_emploie, '$date')";
+                echo 'Requête SQL : ' . $sql . '<br>';
+
+                // Exécute la requête SQL
+                $result = mysqli_query($connection, $sql);
+
+                // Vérifie si la requête a réussi
+                if ($result) {
+                  // Affiche un message de remerciement
+                  echo "Votre candidature a bien été soumise.";
+                } else {
+                  // Affiche un message d'erreur
+                  echo 'Erreur : ' . mysqli_error($connection);
+                }
+              } else {
+                // Affiche un message d'erreur si la table `application` n'existe pas
+                echo 'Erreur : la table `application` n\'existe pas.';
+              }
+            } else {
+              // Affiche un message d'erreur si les variables sont vides
+              echo 'Erreur : les variables sont vides.';
+            }
+          }
+
+          // Ferme la connexion à la base de données
+        
+          ?>
         </div>
       </article>
-      <?php
+    </section>
+    <?php
 
-    }
-    ?>
+  }
+  mysqli_close($connection);
+  ?>
 
-  </section>
   <!--<section class="section4">
     <article class="article1">
       <img src="./images/image2.png" alt="socite" srcset="">
