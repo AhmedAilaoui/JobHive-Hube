@@ -93,9 +93,10 @@ header{
     border-radius: 15px;
     background-color:  rgb(228, 228, 228);
     height: 200px;
-    width:800px ;
-    margin-left: 22.5%;
-    
+    width:600px ;
+    margin-left: 27%;
+    margin-bottom: 50px;
+    padding-left: 80px;
 }
 .section4{
     border-radius: 15px;
@@ -178,5 +179,6 @@ header{
     padding-top: 20px;
   }
   .description{
-    margin-left: 21%;
+   color: rgb(4, 161, 87);
+   font-size: 25px;
   }
